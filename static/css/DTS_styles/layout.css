@@ -1,0 +1,220 @@
+.top-bar {
+    width: 100%;
+    height: 100px;
+    background-color: #3b3b3b;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 24px;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+}
+
+.left-section {
+    display: flex;
+    align-items: center;
+}
+
+.menu-icon {
+    cursor: pointer;
+    padding: 20px;
+    font-size: 32px;
+}
+
+.page-title {
+    margin-left: 20px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.center-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex-grow: 1;
+    position: relative; /* Added for positioning the profile icon */
+}
+
+.sliding-menu {
+    position: fixed;
+    top: 100px;
+    left: -250px;
+    width: 250px;
+    height: calc(100% - 100px);
+    background-color: #282828;
+    overflow-y: hidden;
+    transition: left 0.5s;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.sliding-menu.open {
+    left: 0;
+}
+
+.sliding-menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.sliding-menu ul li {
+    padding: 8px 16px;
+    text-align: left;
+    font-size: 20px;
+    transition: font-size 0.3s, padding 0.3s;
+    border-bottom: 1px solid #333;
+}
+
+.sliding-menu ul li:last-child {
+    border-bottom: none;
+}
+
+.sliding-menu ul li a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s, font-size 0.3s, padding 0.3s;
+}
+
+.sliding-menu ul li a:hover {
+    background-color: #555; 
+    padding-left: 24px; 
+    font-size: 22px; 
+}
+
+.sliding-menu .trademark {
+    margin-top: auto;
+    padding: 10px;
+    font-size: 14px;
+    color: white;
+    text-align: center;
+}
+
+.sliding-menu .logout-trademark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: auto;
+    padding: 10px;
+    font-size: 14px;
+    color: white;
+    text-align: center;
+}
+
+.sliding-menu .logout-button {
+    margin-bottom: 5px;
+    color: white;
+    text-decoration: none;
+    background-color: #d9534f; /* Changed to red */
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.sliding-menu .logout-button:hover {
+    background-color: #c9302c; /* Darker red on hover */
+}
+
+/* Bottom-nav */
+.bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #333;
+    padding: 10px 0;
+    z-index: 1000;
+    flex-wrap: wrap;
+}
+
+.bottom-nav button {
+    background: none;
+    border: none;
+    color: rgb(179, 179, 179);
+    font-size: 20px;
+    cursor: pointer;
+    transition: color 0.3s;
+    flex: 1 1 20%; /* Ensure buttons take equal space and wrap */
+    max-width: 20%; /* Ensure buttons do not exceed 20% width */
+}
+
+.bottom-nav button:hover {
+    color: #007BFF;
+}
+
+.bottom-nav .nav-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bottom-nav .nav-icon span {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+@media (max-width: 600px) {
+    .top-bar {
+        flex-direction: column;
+        height: auto;
+        padding: 10px;
+    }
+    .left-section, .center-section, .icons-right {
+        width: 100%;
+        justify-content: center;
+    }
+    .page-title {
+        font-size: 20px;
+        margin: 10px 0;
+    }
+    .center-section {
+        height: auto; /* Ensure center-section fits within the top-bar */
+    }
+    .datetime, .username {
+        font-size: 18px;
+    }
+    .icons-right {
+        justify-content: space-around;
+    }
+    .menu-icon, .notification-bell, .search-icon, .print-icon, .chat-icon, .paint-icon {
+        padding: 10px;
+        font-size: 20px;
+    }
+}
+
+@media (min-width: 1025px) { /* Large Desktop View */
+
+    body {
+        font-size: 18px;
+    }
+    .container {
+        padding: 30px;
+    }
+
+    .bottom-nav {
+        display: none;
+    }
+}
+
+.table-container th {
+    font-size: 14px; /* Smaller font size for table headers */
+    padding: 8px; /* Adjust padding if necessary */
+}
+
+.sort-icon {
+    cursor: pointer;
+    font-size: 20px;
+    float: right; /* Align to the right */
+    margin-left: 5px;
+    color: aliceblue;
+}

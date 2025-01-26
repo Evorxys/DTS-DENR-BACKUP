@@ -1,0 +1,9 @@
+.env
+__pycache__/
+samplesonly
+<<<<<<< HEAD
+OTP.py
+receiver
+=======
+OTP.py
+>>>>>>> 2bfd2abe96667a67c5f512def5521b1182813fb3

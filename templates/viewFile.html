@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/css/viewFile.css">
+    <title>View Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="/static/js/viewFile.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Document Details</h1>
+        </header>
+        <main>
+            <div class="file-details">
+                <div id="qrcode" style="margin-bottom: 10px;"></div>
+                <button id="shareQRCodeButton" onclick="shareQRCode()">Share QR Code</button>
+                <button id="copyLinkButton" onclick="copyLink()">Copy Link</button>
+                <button id="viewAttachmentButton" class="action-button" onclick="viewAttachment('{{ document.tracking_no }}')">View Attachment</button>
+                <p><strong>Tracking No:</strong> {{ document.tracking_no }}</p>
+                <p><strong>Document Type:</strong> {{ document.document_type }}</p>
+                <p><strong>Document Properties:</strong> {{ document.document_properties }}</p>
+                <p><strong>Subject:</strong> {{ document.subject }}</p>
+                <p><strong>Date Released:</strong> {{ document.date_released.strftime('%B %d, %Y %I:%M %p') }}</p>
+                <p><strong>Receiving Office:</strong> {{ document.receiving_office }}</p>
+                <p><strong>Receiving Section:</strong> {{ document.receiving_section }}</p>
+                <p><strong>Status:</strong> {{ document.status }}</p>
+                <p><strong>Document Category:</strong> {{ document.document_category }}</p>
+            </div>
+            <button id="closeViewerButton" class="action-button" style="display: none;" onclick="closeDocumentViewer()">Close Document Viewer</button>
+            <div id="errorMessage" style="display: none; color: red; text-align: center;">Failed to load document. Please try reloading.</div>
+            <button id="reloadButton" class="action-button" style="display: none;" onclick="reloadDocument()">Reload Document</button>
+        </main>
+        <footer>
+            <button class="action-button" onclick="window.location.href='{{ url_for('index') }}'">Back</button>
+        </footer>
+    </div>
+</body>
+</html>
