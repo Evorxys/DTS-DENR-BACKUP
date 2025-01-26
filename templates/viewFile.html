@@ -26,6 +26,7 @@
                 <p><strong>Date Released:</strong> {{ document.date_released.strftime('%B %d, %Y %I:%M %p') }}</p>
                 <p><strong>Receiving Office:</strong> {{ document.receiving_office }}</p>
                 <p><strong>Receiving Section:</strong> {{ document.receiving_section }}</p>
+                <p><strong>Received:</strong> {{ document.incoming_date.strftime('%B %d, %Y %I:%M %p') }}</p>
                 <p><strong>Status:</strong> {{ document.status }}</p>
                 <p><strong>Document Category:</strong> {{ document.document_category }}</p>
             </div>

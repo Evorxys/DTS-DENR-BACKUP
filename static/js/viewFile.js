@@ -30,48 +30,25 @@ function copyLink() {
 }
 
 function shareQRCode() {
-    const qrCodeElement = document.getElementById('qrcode').querySelector('img');
     const url = window.location.href;
-    const trackingNo = document.querySelector('p strong').textContent.trim(); // Assuming the tracking number is in a <p> with a <strong> tag
+    const trackingNo = document.querySelector('p strong').textContent.trim();
 
-    if (qrCodeElement) {
-        const qrCodeUrl = qrCodeElement.src;
-        fetch(qrCodeUrl)
-            .then(res => res.blob())
-            .then(blob => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                const img = new Image();
-                img.src = URL.createObjectURL(blob);
-                img.onload = () => {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-                    canvas.toBlob((blob) => {
-                        const file = new File([blob], 'qrcode.jpg', { type: 'image/jpeg' });
-                        const shareData = {
-                            title: `QR Code and Link for Document ${trackingNo}`,
-                            text: `This is the QR code and link for the document (Tracking No: ${trackingNo}).\n\nLink: ${url}`,
-                            files: [file]
-                        };
+    if (navigator.share) {
+        const shareData = {
+            title: `QR Code and Link for Document ${trackingNo}`,
+            text: `Check out the document using this link: ${url}`,
+            url: url
+        };
 
-                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                            navigator.share(shareData).then(() => {
-                                console.log('QR Code and link shared successfully');
-                            }).catch(err => {
-                                console.error('Error sharing QR Code and link: ', err);
-                            });
-                        } else {
-                            alert('Sharing not supported in this browser.');
-                        }
-                    }, 'image/jpeg');
-                };
+        navigator.share(shareData)
+            .then(() => {
+                console.log('Content shared successfully');
             })
-            .catch(err => {
-                console.error('Error fetching QR Code image: ', err);
+            .catch((error) => {
+                console.error('Error sharing:', error);
             });
     } else {
-        alert('QR Code not found');
+        alert('Sharing is not supported on this device.');
     }
 }
 
