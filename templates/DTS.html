@@ -99,10 +99,11 @@
                         <th onclick="sortTable(2)">DOCUMENT PROPERTIES <span class="sort-icon">⇅</span></th>
                         <th onclick="sortTable(3)">SUBJECT <span class="sort-icon">⇅</span></th>
                         <th onclick="sortTable(4)">DATE RELEASED <span class="sort-icon">⇅</span></th>
-                        <th onclick="sortTable(5)">RECEIVING OFFICE/SECTION <span class="sort-icon">⇅</span></th>
-                        <th onclick="sortTable(6)">SENDER OFFICE/SECTION <span class="sort-icon">⇅</span></th>
-                        <th onclick="sortTable(7)">STATUS <span class="sort-icon">⇅</span></th>
-                        <th onclick="sortTable(8)">DOCUMENT CATEGORY <span class="sort-icon">⇅</span></th>
+                        <th onclick="sortTable(5)">DATE RECEIVED <span class="sort-icon">⇅</span></th>
+                        <th onclick="sortTable(6)">RECEIVING OFFICE/SECTION <span class="sort-icon">⇅</span></th>
+                        <th onclick="sortTable(7)">SENDER OFFICE/SECTION <span class="sort-icon">⇅</span></th>
+                        <th onclick="sortTable(8)">STATUS <span class="sort-icon">⇅</span></th>
+                        <th onclick="sortTable(9)">DOCUMENT CATEGORY <span class="sort-icon">⇅</span></th>
                         <th>ACTION</th>
                     </tr>
                 </thead>
@@ -115,6 +116,7 @@
                             <td>{{ document.document_properties }}</td>
                             <td>{{ document.subject }}</td>
                             <td>{{ document.date_released.strftime('%B %d, %Y %I:%M %p') }}</td>
+                            <td>{{ document.incoming_date.strftime('%B %d, %Y %I:%M %p') }}</td>
                             <td>{{ document.receiving_office }}  {{ document.receiving_section }}</td>
                             <td>{{ document.sender_office }}  {{ document.sender_section }}</td> <!-- New data -->
                             <td>{{ document.status }}</td>
@@ -124,7 +126,7 @@
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="10">No documents found.</td>
+                            <td colspan="11">No documents found.</td>
                         </tr>
                     {% endif %}
                 </tbody>
@@ -250,7 +252,9 @@
                 <option value="" disabled selected>Select Receiving Section</option>
                 <!-- Options will be populated based on the selected receiving office -->
             </select>
-            <button onclick="updateReceivingOfficeAndSection()">Update</button>
+            <label for="updateDocumentFile">Upload Document:</label>
+            <input type="file" id="updateDocumentFile" accept=".pdf"> <!-- File input for uploading document -->
+            <button onclick="updateReceivingOfficeAndSection()">Send</button>
         </div>
     </div>
 

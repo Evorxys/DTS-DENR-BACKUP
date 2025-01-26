@@ -122,7 +122,12 @@ function toggleFloatingMenu() {
 
 function updateDateTime() {
     fetch('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Manila')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             const now = new Date(data.dateTime);
             const options = { 
@@ -138,7 +143,23 @@ function updateDateTime() {
             const formattedDateTime = now.toLocaleDateString('en-US', options);
             document.getElementById('datetime').textContent = formattedDateTime;
         })
-        .catch(error => console.error('Error fetching time:', error));
+        .catch(error => {
+            console.error('Error fetching time:', error);
+            // Fallback to local time if the API request fails
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: true 
+            };
+            const formattedDateTime = now.toLocaleDateString('en-US', options);
+            document.getElementById('datetime').textContent = formattedDateTime;
+        });
 }
 
 setInterval(updateDateTime, 1000);
@@ -163,8 +184,8 @@ function checkSimpleDocumentTimers() {
     const rows = document.querySelectorAll('#documentTable tbody tr');
     const expiredDocuments = [];
     rows.forEach(row => {
-        const status = row.querySelector('td:nth-child(8)').textContent.trim();
-        const category = row.querySelector('td:nth-child(9)').textContent.trim();
+        const status = row.querySelector('td:nth-child(9)').textContent.trim(); // Updated to correct column
+        const category = row.querySelector('td:nth-child(10)').textContent.trim(); // Updated to correct column
         const dateReleasedText = row.querySelector('td:nth-child(5)').textContent.trim();
         const dateReleased = new Date(Date.parse(dateReleasedText));
         const now = new Date();
@@ -186,8 +207,8 @@ function checkTechnicalDocumentTimers() {
     const rows = document.querySelectorAll('#documentTable tbody tr');
     const expiredDocuments = [];
     rows.forEach(row => {
-        const status = row.querySelector('td:nth-child(8)').textContent.trim();
-        const category = row.querySelector('td:nth-child(9)').textContent.trim();
+        const status = row.querySelector('td:nth-child(9)').textContent.trim(); // Updated to correct column
+        const category = row.querySelector('td:nth-child(10)').textContent.trim(); // Updated to correct column
         const dateReleasedText = row.querySelector('td:nth-child(5)').textContent.trim();
         const dateReleased = new Date(Date.parse(dateReleasedText));
         const now = new Date();
@@ -209,8 +230,8 @@ function checkHighlyTechnicalDocumentTimers() {
     const rows = document.querySelectorAll('#documentTable tbody tr');
     const expiredDocuments = [];
     rows.forEach(row => {
-        const status = row.querySelector('td:nth-child(8)').textContent.trim();
-        const category = row.querySelector('td:nth-child(9)').textContent.trim();   // The time is based on the column 9
+        const status = row.querySelector('td:nth-child(9)').textContent.trim(); // Updated to correct column
+        const category = row.querySelector('td:nth-child(10)').textContent.trim(); // Updated to correct column
         const dateReleasedText = row.querySelector('td:nth-child(5)').textContent.trim();
         const dateReleased = new Date(Date.parse(dateReleasedText));
         const now = new Date();
@@ -830,18 +851,29 @@ function updateReceivingOfficeAndSection() {
     const trackingNo = document.getElementById('sendToTrackingNo').textContent.trim();
     const receivingOffice = document.getElementById('sendToReceivingOffice').value;
     const receivingSection = document.getElementById('sendToReceivingSection').value;
+    const fileInput = document.getElementById('updateDocumentFile');
+    const file = fileInput.files[0];
 
-    fetch(`/update_receiving_office_and_section`, {
+    // Show notification
+    alert('The document is being updated, please wait...');
+
+    const formData = new FormData();
+    formData.append('tracking_no', trackingNo);
+    formData.append('receiving_office', receivingOffice);
+    formData.append('receiving_section', receivingSection);
+
+    if (file) {
+        formData.append('file', file);
+    }
+
+    fetch('/update_receiving_office_and_section', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ tracking_no: trackingNo, receiving_office: receivingOffice, receiving_section: receivingSection })
+        body: formData
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Document updated successfully');
+            alert('Document was sent successfully');
             closeSendToModal();
         } else {
             alert('Failed to update document');
@@ -949,4 +981,37 @@ function sortTable(columnIndex) {
     table.setAttribute('data-sort-order', isAscending ? 'desc' : 'asc');
 }
 
+// ...existing code...
+function updateDocument() {
+    const trackingNo = document.getElementById('sendToTrackingNo').textContent.trim();
+    const fileInput = document.getElementById('updateDocumentFile');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert('Please select a file to update the document.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('tracking_no', trackingNo);
+
+    // Show notification
+    alert('The document is being updated, please wait...');
+
+    fetch('/update_document_file', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Document was updated successfully');
+            closeSendToModal();
+        } else {
+            alert('Failed to update document');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
 // ...existing code...

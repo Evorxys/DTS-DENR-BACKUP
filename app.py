@@ -514,20 +514,23 @@ def add_document():
         encrypted_username = request.form['username']  # Ensure this field is included
         section = request.form['section']  # Ensure this field is included
 
+        # Parse the date released to ensure consistency
+        parsed_date_released = datetime.strptime(date_released, '%Y-%m-%dT%H:%M')
+
         new_document = Document(
             tracking_no=tracking_no,
             document_type=document_type,
             document_properties=document_properties,
             subject=subject,
-            date_released=datetime.strptime(date_released, '%Y-%m-%dT%H:%M'),  # Updated format
+            date_released=parsed_date_released,  # Use parsed date
             receiving_office=receiving_office,
             receiving_section=receiving_section,
             sender_office=sender_office,
             sender_section=sender_section,
             status=status,
             document_category=document_category,
-            incoming_date=datetime.utcnow(),
-            outgoing_date=datetime.utcnow()
+            incoming_date=parsed_date_released,  # Use the same date as date released
+            outgoing_date=parsed_date_released  # Use the same date as date released
         )
 
         db.session.add(new_document)
@@ -612,32 +615,63 @@ def update_document_status():
 
 @app.route('/update_receiving_office_and_section', methods=['POST'])
 def update_receiving_office_and_section():
-    data = request.get_json()
-    tracking_no = data.get('tracking_no')
-    receiving_office = data.get('receiving_office')
-    receiving_section = data.get('receiving_section')
+    tracking_no = request.form['tracking_no']
+    receiving_office = request.form['receiving_office']
+    receiving_section = request.form['receiving_section']
 
     document = Document.query.filter_by(tracking_no=tracking_no).first()
-    if document:
-        document.receiving_office = receiving_office
-        document.receiving_section = receiving_section
-        db.session.commit()
+    if not document:
+        return jsonify({'success': False, 'error': 'Document not found'}), 404
 
-        # Send email notification
-        send_document_update_email(
-            tracking_no=document.tracking_no,
-            subject=document.subject,
-            document_category=document.document_category,
-            sender_office=document.sender_office,
-            sender_section=document.sender_section,
-            receiving_office=document.receiving_office,
-            receiving_section=document.receiving_section,
-            status=document.status
-        )
+    document.receiving_office = receiving_office
+    document.receiving_section = receiving_section
+    current_time = datetime.utcnow()
+    document.incoming_date = current_time  # Update incoming date with current server time
+    document.outgoing_date = current_time  # Update outgoing date with current server time
 
-        return {'success': True}
-    else:
-        return {'error': 'Document not found'}, 404
+    if 'file' in request.files:
+        file = request.files['file']
+        if file.filename != '':
+            # Rename the file
+            file_extension = os.path.splitext(file.filename)[1]
+            new_filename = f"{tracking_no}_{document.sender_office.replace(' ', '_')}_{document.sender_section.replace(' ', '_')}{file_extension}"
+            files = {'file': (new_filename, file.stream, file.content_type)}
+
+            # Ensure LOCAL_SERVER_IP and LOCAL_SERVER_PORT are set
+            local_server_ip = os.getenv('LOCAL_SERVER_IP')
+            local_server_port = os.getenv('LOCAL_SERVER_PORT')
+            if not local_server_ip or not local_server_port:
+                app.logger.error("LOCAL_SERVER_IP or LOCAL_SERVER_PORT is not set in the .env file.")
+                return jsonify({'success': False, 'error': "Server configuration error."}), 500
+
+            # Send the file directly to the receiver server
+            receiver_url = f"https://{local_server_ip}:{local_server_port}/receive"
+            headers = {'Authorization': f"Bearer {os.getenv('SECRET_KEY')}"}
+
+            try:
+                response = requests.post(receiver_url, headers=headers, files=files, verify=False)
+                if response.status_code != 200:
+                    app.logger.error(f"Failed to send file: {response.status_code}, {response.text}")
+                    return jsonify({'success': False, 'error': f"Failed to send file: {response.status_code}, {response.text}"}), 500
+            except requests.exceptions.RequestException as e:
+                app.logger.error(f"RequestException: {str(e)}")
+                return jsonify({'success': False, 'error': str(e)}), 500
+
+    db.session.commit()
+
+    # Send email notification
+    send_document_update_email(
+        tracking_no=document.tracking_no,
+        subject=document.subject,
+        document_category=document.document_category,
+        sender_office=document.sender_office,
+        sender_section=document.sender_section,
+        receiving_office=document.receiving_office,
+        receiving_section=document.receiving_section,
+        status=document.status
+    )
+
+    return {'success': True}
 
 @app.route('/get_receiving_sections')
 def get_receiving_sections():
@@ -737,6 +771,48 @@ def upload_document():
             return jsonify({'success': False, 'error': f"Failed to send file: {response.status_code}, {response.text}"}), 500
     except requests.exceptions.RequestException as e:
         print(f"RequestException: {str(e)}")  # Debug print statement
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/update_document_file', methods=['POST'])
+def update_document_file():
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'error': 'No file part'}), 400
+
+    file = request.files['file']
+    tracking_no = request.form['tracking_no']
+
+    if file.filename == '':
+        return jsonify({'success': False, 'error': 'No selected file'}), 400
+
+    document = Document.query.filter_by(tracking_no=tracking_no).first()
+    if not document:
+        return jsonify({'success': False, 'error': 'Document not found'}), 404
+
+    # Rename the file
+    file_extension = os.path.splitext(file.filename)[1]
+    new_filename = f"{tracking_no}_{document.sender_office.replace(' ', '_')}_{document.sender_section.replace(' ', '_')}{file_extension}"
+    files = {'file': (new_filename, file.stream, file.content_type)}
+
+    # Ensure LOCAL_SERVER_IP and LOCAL_SERVER_PORT are set
+    local_server_ip = os.getenv('LOCAL_SERVER_IP')
+    local_server_port = os.getenv('LOCAL_SERVER_PORT')
+    if not local_server_ip or not local_server_port:
+        app.logger.error("LOCAL_SERVER_IP or LOCAL_SERVER_PORT is not set in the .env file.")
+        return jsonify({'success': False, 'error': "Server configuration error."}), 500
+
+    # Send the file directly to the receiver server
+    receiver_url = f"https://{local_server_ip}:{local_server_port}/receive"
+    headers = {'Authorization': f"Bearer {os.getenv('SECRET_KEY')}"}
+
+    try:
+        response = requests.post(receiver_url, headers=headers, files=files, verify=False)
+        if response.status_code == 200:
+            return jsonify({'success': True, 'message': 'Document updated successfully'}), 200
+        else:
+            app.logger.error(f"Failed to send file: {response.status_code}, {response.text}")
+            return jsonify({'success': False, 'error': f"Failed to send file: {response.status_code}, {response.text}"}), 500
+    except requests.exceptions.RequestException as e:
+        app.logger.error(f"RequestException: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
