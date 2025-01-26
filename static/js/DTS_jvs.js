@@ -617,19 +617,21 @@ function printSelectedDocument() {
     const documentProperties = selectedRow.querySelector('td:nth-child(3)').textContent.trim();
     const subject = selectedRow.querySelector('td:nth-child(4)').textContent.trim();
     const dateReleased = selectedRow.querySelector('td:nth-child(5)').textContent.trim();
-    const receivingOffice = selectedRow.querySelector('td:nth-child(6)').textContent.trim();
-    const status = selectedRow.querySelector('td:nth-child(7)').textContent.trim();
-    const documentCategory = selectedRow.querySelector('td:nth-child(8)').textContent.trim();
+    const dateReceived = selectedRow.querySelector('td:nth-child(6)').textContent.trim();
+    const receivingOffice = selectedRow.querySelector('td:nth-child(7)').textContent.trim();
+    const senderOffice = selectedRow.querySelector('td:nth-child(8)').textContent.trim();
+    const status = selectedRow.querySelector('td:nth-child(9)').textContent.trim();
+    const documentCategory = selectedRow.querySelector('td:nth-child(10)').textContent.trim();
     const viewFileUrl = `http://dts-denr-v2.onrender.com/viewFile.html/${trackingNo}`;
 
     const printWindow = window.open('', '', 'width=800,height=600');
     printWindow.document.write('<html><head><title>Print Document</title><style>');
     printWindow.document.write('table { width: 100%; border-collapse: collapse; margin-top: 20px; }');
-    printWindow.document.write('th, td { border: 1px solid #000; padding: 8px; text-align: left; }');
+    printWindow.document.write('th, td { border: 1px solid #000; padding: 8px; text-align: left; vertical-align: middle; }');
     printWindow.document.write('th { background-color: #f2f2f2; }');
-    printWindow.document.write('.red-line { border-top: 3px solid red; margin: 20px 0; }'); // Thicker red line
+    printWindow.document.write('.red-line { border-top: 3px solid red; margin: 20px 0; }');
     printWindow.document.write('.qrcode-container { position: absolute; bottom: 20px; right: 20px; text-align: center; }'); // QR code positioning
-    printWindow.document.write('.qrcode-container p { margin: 0; font-size: 12px; }'); // Text styling
+    printWindow.document.write('.qrcode-container p { margin: 0; font-size: 12px; }');
     printWindow.document.write('</style></head><body>');
     printWindow.document.write('<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">');
     printWindow.document.write('<img src="/uploads/denr_logo.png" alt="DENR Logo" style="height: 100px;">');
@@ -640,17 +642,16 @@ function printSelectedDocument() {
     printWindow.document.write('</div>');
     printWindow.document.write('<img src="/uploads/newph_logo.png" alt="NewPH Logo" style="height: 100px;">');
     printWindow.document.write('</div>');
-    printWindow.document.write('<div class="red-line"></div>'); // Add thicker red line
-    printWindow.document.write('<h2>Document Details</h2>');
+    printWindow.document.write('<div class="red-line"></div>');
+    printWindow.document.write('<h2>Document Action Tracking System</h2>');
     printWindow.document.write('<table>');
-    printWindow.document.write('<tr><th>Tracking No</th><td>' + trackingNo + '</td></tr>');
-    printWindow.document.write('<tr><th>Document Type</th><td>' + documentType + '</td></tr>');
-    printWindow.document.write('<tr><th>Document Properties</th><td>' + documentProperties + '</td></tr>');
+    printWindow.document.write('<tr><th>Sender</th><td>' + senderOffice + '</td></tr>');
     printWindow.document.write('<tr><th>Subject</th><td>' + subject + '</td></tr>');
-    printWindow.document.write('<tr><th>Date Released</th><td>' + dateReleased + '</td></tr>');
-    printWindow.document.write('<tr><th>Receiving Office</th><td>' + receivingOffice + '</td></tr>');
-    printWindow.document.write('<tr><th>Status</th><td>' + status + '</td></tr>');
-    printWindow.document.write('<tr><th>Document Category</th><td>' + documentCategory + '</td></tr>');
+    printWindow.document.write('</table>');
+    printWindow.document.write('<h3>Routing and Action Info</h3>');
+    printWindow.document.write('<table>');
+    printWindow.document.write('<tr><th>FROM</th><th>DATE/TIME RECEIVED</th><th>TO/FOR</th><th>DATE/TIME RELEASED</th><th>ACTION REQUIRED.TAKEN REMARKS/STATUS</th><th></th></tr>');
+    printWindow.document.write('<tr><td>' + senderOffice + '</td><td>' + dateReceived + '</td><td>' + receivingOffice + '</td><td>' + dateReleased + '</td><td>For Info<br>Action<br>Compliance<br>For Approval or Signature</td><td><input type="checkbox"><br><input type="checkbox"><br><input type="checkbox"><br><input type="checkbox"></td></tr>');
     printWindow.document.write('</table>');
     printWindow.document.write('<div class="qrcode-container"><div id="qrcode"></div><p>Developed by: Jay Lord Diniega</p></div>'); // QR code container with text
     printWindow.document.write('</body></html>');

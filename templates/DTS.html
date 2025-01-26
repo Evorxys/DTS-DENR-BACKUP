@@ -189,6 +189,14 @@
                 <select id="receivingOffice" name="receivingOffice" required>
                     <option value="" disabled selected>Select Receiving Office</option>
                     <option value="PENRO Isabela">PENRO Isabela</option>
+                    <option value="PENRO Sub-Office">PENRO Sub-Office</option>
+                    {% if office == 'PENRO Isabela' %}
+                    <option value="CENRO Naguilian">CENRO Naguilian</option>
+                    <option value="CENRO Cauayan">CENRO Cauayan</option>
+                    <option value="CENRO Cabagan">CENRO Cabagan</option>
+                    <option value="CENRO San Isidro">CENRO San Isidro</option>
+                    <option value="CENRO Palanan">CENRO Palanan</option>
+                    {% endif %}
                     <option value="{{ office }}">{{ office }}</option>
                 </select>
 
@@ -242,15 +250,25 @@
             <h2>Send Document</h2>
             <p><strong>Tracking No:</strong> <span id="sendToTrackingNo"></span></p>
             <label for="sendToReceivingOffice">Receiving Office:</label>
-            <select id="sendToReceivingOffice" name="sendToReceivingOffice" required onchange="updateReceivingSections()">
+            <select id="sendToReceivingOffice" name="sendToReceivingOffice" required>
                 <option value="" disabled selected>Select Receiving Office</option>
                 <option value="PENRO Isabela">PENRO Isabela</option>
+                <option value="PENRO Sub-Office">PENRO Sub-Office</option>
+                {% if office == 'PENRO Isabela' %}
+                <option value="CENRO Naguilian">CENRO Naguilian</option>
+                <option value="CENRO Cauayan">CENRO Cauayan</option>
+                <option value="CENRO Cabagan">CENRO Cabagan</option>
+                <option value="CENRO San Isidro">CENRO San Isidro</option>
+                <option value="CENRO Palanan">CENRO Palanan</option>
+                {% endif %}
                 <option value="{{ office }}">{{ office }}</option>
             </select>
             <label for="sendToReceivingSection">Receiving Section:</label>
             <select id="sendToReceivingSection" name="sendToReceivingSection" required>
                 <option value="" disabled selected>Select Receiving Section</option>
-                <!-- Options will be populated based on the selected receiving office -->
+                {% for office in offices|unique(attribute='section_designation') %}
+                <option value="{{ office.section_designation }}">{{ office.section_designation }}</option>
+                {% endfor %}
             </select>
             <label for="updateDocumentFile">Upload Document:</label>
             <input type="file" id="updateDocumentFile" accept=".pdf"> <!-- File input for uploading document -->
